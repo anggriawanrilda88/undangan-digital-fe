@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Eye, EyeOff, Save, Check, Loader2, AlertCircle, ChevronLeft, Rocket, CheckCircle2 } from "lucide-react"
+import { Eye, EyeOff, Save, Check, Copy, Loader2, AlertCircle, ChevronLeft, Rocket, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
 import type { TemplateProps } from "@/types/template"
 import type { InvitationStatus } from "@/types/api"
@@ -226,6 +226,14 @@ function PublishConfirmModal({
   slug: string
 }) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://undangan-digital.anggriawan.my.id"
+  const [copied, setCopied] = useState(false)
+
+  const handleCopyUrl = () => {
+    navigator.clipboard.writeText(`${baseUrl}/u/${slug}`)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
     <>
       <motion.div
@@ -246,9 +254,20 @@ function PublishConfirmModal({
         <p className="text-xs text-stone-500 mb-3">
           Undangan akan bisa diakses di:
         </p>
-        <p className="text-xs font-mono bg-stone-50 rounded-lg px-3 py-2 text-stone-700 mb-4 break-all">
-          {baseUrl}/u/{slug}
-        </p>
+        <div className="flex items-center gap-2 bg-stone-50 rounded-lg px-3 py-2 mb-4">
+          <p className="flex-1 text-xs font-mono text-stone-700 break-all">
+            {baseUrl}/u/{slug}
+          </p>
+          <button
+            onClick={handleCopyUrl}
+            className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-white border border-stone-200 text-stone-600 hover:bg-stone-100 transition-colors"
+          >
+            {copied
+              ? <><Check size={12} className="text-green-600" /> Tersalin</>
+              : <><Copy size={12} /> Salin</>
+            }
+          </button>
+        </div>
         <div className="flex gap-2">
           <button
             onClick={onCancel}
@@ -572,7 +591,7 @@ function BankAccountsEditor({
           <select
             value={acc.bankName}
             onChange={e => updateAccount(i, "bankName", e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+            className="w-full px-3 py-2 rounded-lg border border-stone-200 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
           >
             {BANK_OPTIONS.map(b => <option key={b}>{b}</option>)}
           </select>
@@ -580,13 +599,13 @@ function BankAccountsEditor({
             value={acc.accountNumber}
             onChange={e => updateAccount(i, "accountNumber", e.target.value)}
             placeholder="Nomor rekening"
-            className="w-full px-3 py-2 rounded-lg border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white font-mono"
+            className="w-full px-3 py-2 rounded-lg border border-stone-200 text-sm text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white font-mono"
           />
           <input
             value={acc.accountHolder}
             onChange={e => updateAccount(i, "accountHolder", e.target.value)}
             placeholder="Atas nama"
-            className="w-full px-3 py-2 rounded-lg border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+            className="w-full px-3 py-2 rounded-lg border border-stone-200 text-sm text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
           />
         </div>
       ))}
@@ -631,7 +650,7 @@ function Input({ value, onChange, placeholder, type = "text" }: {
       value={value}
       onChange={e => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full px-3 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+      className="w-full px-3 py-2.5 rounded-xl border border-stone-200 text-sm text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
     />
   )
 }
@@ -645,7 +664,7 @@ function Textarea({ value, onChange, placeholder, rows = 3 }: {
       onChange={e => onChange(e.target.value)}
       placeholder={placeholder}
       rows={rows}
-      className="w-full px-3 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white resize-none"
+      className="w-full px-3 py-2.5 rounded-xl border border-stone-200 text-sm text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white resize-none"
     />
   )
 }
