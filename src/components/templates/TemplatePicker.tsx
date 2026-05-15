@@ -5,8 +5,12 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Check, Eye, LayoutGrid, List, X, ArrowLeft, ArrowRight } from "lucide-react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { TEMPLATE_PREVIEW_DATA } from "@/types/template"
+import TemplateElegantGarden from "@/components/templates/TemplateElegantGarden"
+import TemplateModernSerif from "@/components/templates/TemplateModernSerif"
+import TemplateRoyalBatik from "@/components/templates/TemplateRoyalBatik"
 
-// ─── Template registry ────────────────────────────────────
+// ─── Data ─────────────────────────────────────────────────
 
 export interface TemplateOption {
   id: string
@@ -44,9 +48,15 @@ export const AVAILABLE_TEMPLATES: TemplateOption[] = [
   },
 ]
 
-// ─── Preview Modal ────────────────────────────────────────
+const TEMPLATE_COMPONENTS: Record<string, React.ComponentType<typeof TEMPLATE_PREVIEW_DATA>> = {
+  "elegant-garden": TemplateElegantGarden,
+  "modern-serif": TemplateModernSerif,
+  "royal-batik": TemplateRoyalBatik,
+}
 
-function PreviewModal({
+// ─── Full-screen Preview Overlay ─────────────────────────
+
+function PreviewOverlay({
   template,
   onClose,
   onPrev,
@@ -61,73 +71,63 @@ function PreviewModal({
   hasPrev: boolean
   hasNext: boolean
 }) {
+  const TemplateComponent = TEMPLATE_COMPONENTS[template.id]
+  const idx = AVAILABLE_TEMPLATES.findIndex(t => t.id === template.id)
+
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4"
-        onClick={onClose}
-      >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.92, y: 16 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.92, y: 16 }}
-          transition={{ duration: 0.2 }}
-          className="relative bg-white rounded-2xl overflow-hidden shadow-2xl w-full max-w-sm mx-auto"
-          onClick={e => e.stopPropagation()}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 bg-white overflow-y-auto"
+    >
+      {/* Topbar */}
+      <div className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-4 h-14 bg-white/90 backdrop-blur-sm border-b border-stone-200 shadow-sm">
+        <button
+          onClick={onPrev}
+          disabled={!hasPrev}
+          className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-800 disabled:opacity-30 transition-colors"
         >
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-stone-100">
-            <div>
-              <p className="font-semibold text-stone-800 text-sm">{template.name}</p>
-              <div className="flex gap-1 mt-0.5">
-                {template.tags.map(t => (
-                  <span key={t} className="text-xs bg-stone-100 text-stone-500 px-1.5 py-0.5 rounded-full">{t}</span>
-                ))}
-              </div>
-            </div>
-            <button onClick={onClose} className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors">
-              <X size={16} />
-            </button>
-          </div>
+          <ArrowLeft size={14} /> Sebelumnya
+        </button>
 
-          {/* Thumbnail besar */}
-          <div className="relative aspect-[3/4] bg-stone-50">
-            <Image
-              src={template.thumbnail}
-              alt={template.name}
-              fill
-              unoptimized
-              className="object-contain z-10"
-            />
-            <div className="absolute inset-0 z-0 bg-gradient-to-br from-amber-50 to-stone-100" />
-          </div>
+        <div className="text-center">
+          <p className="text-sm font-semibold text-stone-800">{template.name}</p>
+          <p className="text-xs text-stone-400">{idx + 1} / {AVAILABLE_TEMPLATES.length}</p>
+        </div>
 
-          {/* Nav prev/next */}
-          <div className="flex items-center justify-between px-4 py-3 border-t border-stone-100">
-            <button
-              onClick={onPrev}
-              disabled={!hasPrev}
-              className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-800 disabled:opacity-30 transition-colors"
-            >
-              <ArrowLeft size={13} /> Sebelumnya
-            </button>
-            <span className="text-xs text-stone-400">
-              {AVAILABLE_TEMPLATES.findIndex(t => t.id === template.id) + 1} / {AVAILABLE_TEMPLATES.length}
-            </span>
-            <button
-              onClick={onNext}
-              disabled={!hasNext}
-              className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-800 disabled:opacity-30 transition-colors"
-            >
-              Selanjutnya <ArrowRight size={13} />
-            </button>
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onNext}
+            disabled={!hasNext}
+            className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-800 disabled:opacity-30 transition-colors"
+          >
+            Berikutnya <ArrowRight size={14} />
+          </button>
+          <button
+            onClick={onClose}
+            className="ml-2 flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-100 text-stone-700 hover:bg-stone-200 transition-colors"
+          >
+            <X size={13} /> Tutup
+          </button>
+        </div>
+      </div>
+
+      {/* Template render */}
+      <div className="pt-14">
+        {TemplateComponent
+          ? <TemplateComponent {...TEMPLATE_PREVIEW_DATA} />
+          : <div className="flex items-center justify-center h-64 text-stone-400 text-sm">Template tidak ditemukan</div>
+        }
+      </div>
+
+      {/* Badge data contoh */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+        <span className="px-3 py-1.5 rounded-full bg-amber-600 text-white text-xs font-medium shadow-md">
+          Preview — Data Contoh
+        </span>
+      </div>
+    </motion.div>
   )
 }
 
@@ -141,7 +141,7 @@ interface TemplatPickerProps {
 
 type ViewMode = "grid" | "list"
 
-export default function TemplatePicker({ selectedId, onSelect, changeId }: TemplatPickerProps) {
+export default function TemplatePicker({ selectedId, onSelect }: TemplatPickerProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [previewId, setPreviewId] = useState<string | null>(null)
 
@@ -150,12 +150,8 @@ export default function TemplatePicker({ selectedId, onSelect, changeId }: Templ
 
   const openPreview = (id: string) => setPreviewId(id)
   const closePreview = () => setPreviewId(null)
-  const prevPreview = () => {
-    if (previewIndex > 0) setPreviewId(AVAILABLE_TEMPLATES[previewIndex - 1].id)
-  }
-  const nextPreview = () => {
-    if (previewIndex < AVAILABLE_TEMPLATES.length - 1) setPreviewId(AVAILABLE_TEMPLATES[previewIndex + 1].id)
-  }
+  const prevPreview = () => { if (previewIndex > 0) setPreviewId(AVAILABLE_TEMPLATES[previewIndex - 1].id) }
+  const nextPreview = () => { if (previewIndex < AVAILABLE_TEMPLATES.length - 1) setPreviewId(AVAILABLE_TEMPLATES[previewIndex + 1].id) }
 
   return (
     <div className="space-y-3">
@@ -200,7 +196,6 @@ export default function TemplatePicker({ selectedId, onSelect, changeId }: Templ
               )}
               onClick={() => onSelect(template.id)}
             >
-              {/* Thumbnail */}
               <div className="relative aspect-[3/4] bg-stone-100">
                 <Image
                   src={template.thumbnail}
@@ -223,7 +218,7 @@ export default function TemplatePicker({ selectedId, onSelect, changeId }: Templ
                   <Eye size={14} />
                 </button>
 
-                {/* Premium badge — geser ke kiri kalau ada preview */}
+                {/* Premium badge */}
                 {template.isPremium && (
                   <div className="absolute top-2 left-2 z-20 bg-amber-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
                     Premium
@@ -242,16 +237,10 @@ export default function TemplatePicker({ selectedId, onSelect, changeId }: Templ
                 )}
               </div>
 
-              {/* Info */}
+              {/* Info — tanpa tags di grid */}
               <div className="p-3 bg-white">
                 <h3 className="font-semibold text-stone-800 text-sm leading-tight">{template.name}</h3>
-                <div className="mt-1.5 flex flex-wrap gap-1">
-                  {template.tags.map(tag => (
-                    <span key={tag} className="text-xs bg-stone-100 text-stone-500 px-1.5 py-0.5 rounded-full">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+                <p className="text-xs text-stone-400 mt-0.5 line-clamp-1">{template.description}</p>
               </div>
             </motion.div>
           ))}
@@ -290,25 +279,21 @@ export default function TemplatePicker({ selectedId, onSelect, changeId }: Templ
 
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="font-semibold text-stone-800 text-sm">{template.name}</h3>
                   {template.isPremium && (
-                    <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-medium">
-                      Premium
-                    </span>
+                    <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-medium">Premium</span>
                   )}
                 </div>
                 <p className="text-xs text-stone-500 mt-0.5 line-clamp-2">{template.description}</p>
                 <div className="mt-1.5 flex flex-wrap gap-1">
                   {template.tags.map(tag => (
-                    <span key={tag} className="text-xs bg-stone-100 text-stone-500 px-1.5 py-0.5 rounded-full">
-                      {tag}
-                    </span>
+                    <span key={tag} className="text-xs bg-stone-100 text-stone-500 px-1.5 py-0.5 rounded-full">{tag}</span>
                   ))}
                 </div>
               </div>
 
-              {/* Aksi kanan */}
+              {/* Kanan */}
               <div className="flex flex-col items-center gap-2 shrink-0">
                 <button
                   onClick={e => { e.stopPropagation(); openPreview(template.id) }}
@@ -328,17 +313,19 @@ export default function TemplatePicker({ selectedId, onSelect, changeId }: Templ
         </div>
       )}
 
-      {/* Inline preview modal */}
-      {previewTemplate && (
-        <PreviewModal
-          template={previewTemplate}
-          onClose={closePreview}
-          onPrev={prevPreview}
-          onNext={nextPreview}
-          hasPrev={previewIndex > 0}
-          hasNext={previewIndex < AVAILABLE_TEMPLATES.length - 1}
-        />
-      )}
+      {/* Full-screen preview overlay */}
+      <AnimatePresence>
+        {previewTemplate && (
+          <PreviewOverlay
+            template={previewTemplate}
+            onClose={closePreview}
+            onPrev={prevPreview}
+            onNext={nextPreview}
+            hasPrev={previewIndex > 0}
+            hasNext={previewIndex < AVAILABLE_TEMPLATES.length - 1}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
