@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Check, Eye, LayoutGrid, List, X, ArrowLeft, ArrowRight } from "lucide-react"
+import { Check, Eye, LayoutGrid, List, X } from "lucide-react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { TEMPLATE_PREVIEW_DATA } from "@/types/template"
@@ -59,20 +59,11 @@ const TEMPLATE_COMPONENTS: Record<string, React.ComponentType<typeof TEMPLATE_PR
 function PreviewOverlay({
   template,
   onClose,
-  onPrev,
-  onNext,
-  hasPrev,
-  hasNext,
 }: {
   template: TemplateOption
   onClose: () => void
-  onPrev: () => void
-  onNext: () => void
-  hasPrev: boolean
-  hasNext: boolean
 }) {
   const TemplateComponent = TEMPLATE_COMPONENTS[template.id]
-  const idx = AVAILABLE_TEMPLATES.findIndex(t => t.id === template.id)
 
   return (
     <motion.div
@@ -81,36 +72,15 @@ function PreviewOverlay({
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 bg-white overflow-y-auto"
     >
-      {/* Topbar */}
+      {/* Topbar — hanya tombol Tutup */}
       <div className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-4 h-14 bg-white/90 backdrop-blur-sm border-b border-stone-200 shadow-sm">
+        <p className="text-sm font-semibold text-stone-800">{template.name}</p>
         <button
-          onClick={onPrev}
-          disabled={!hasPrev}
-          className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-800 disabled:opacity-30 transition-colors"
+          onClick={onClose}
+          className="flex items-center justify-center w-8 h-8 rounded-full bg-stone-100 text-stone-600 hover:bg-stone-200 transition-colors"
         >
-          <ArrowLeft size={14} /> Sebelumnya
+          <X size={16} />
         </button>
-
-        <div className="text-center">
-          <p className="text-sm font-semibold text-stone-800">{template.name}</p>
-          <p className="text-xs text-stone-400">{idx + 1} / {AVAILABLE_TEMPLATES.length}</p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onNext}
-            disabled={!hasNext}
-            className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-800 disabled:opacity-30 transition-colors"
-          >
-            Berikutnya <ArrowRight size={14} />
-          </button>
-          <button
-            onClick={onClose}
-            className="ml-2 flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-100 text-stone-700 hover:bg-stone-200 transition-colors"
-          >
-            <X size={13} /> Tutup
-          </button>
-        </div>
       </div>
 
       {/* Template render */}
@@ -237,10 +207,9 @@ export default function TemplatePicker({ selectedId, onSelect }: TemplatPickerPr
                 )}
               </div>
 
-              {/* Info — tanpa tags di grid */}
-              <div className="p-3 bg-white">
+              {/* Info — nama saja */}
+              <div className="px-3 py-2 bg-white">
                 <h3 className="font-semibold text-stone-800 text-sm leading-tight">{template.name}</h3>
-                <p className="text-xs text-stone-400 mt-0.5 line-clamp-1">{template.description}</p>
               </div>
             </motion.div>
           ))}
@@ -319,10 +288,6 @@ export default function TemplatePicker({ selectedId, onSelect }: TemplatPickerPr
           <PreviewOverlay
             template={previewTemplate}
             onClose={closePreview}
-            onPrev={prevPreview}
-            onNext={nextPreview}
-            hasPrev={previewIndex > 0}
-            hasNext={previewIndex < AVAILABLE_TEMPLATES.length - 1}
           />
         )}
       </AnimatePresence>
