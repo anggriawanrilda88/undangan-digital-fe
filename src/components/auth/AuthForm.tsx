@@ -38,9 +38,14 @@ async function smartRedirect() {
     } else {
       window.location.href = `/dashboard/editor/${invitations[0].id}`
     }
-  } catch {
-    // Fallback ke dashboard biasa jika gagal cek
-    window.location.href = "/dashboard"
+  } catch (err) {
+    // 401 = sesi tidak valid → paksa login ulang
+    if (err instanceof Error && (err.message.includes("UNAUTHORIZED") || (err as {code?: string}).code === "UNAUTHORIZED")) {
+      window.location.href = "/auth/login"
+      return
+    }
+    // Error lain (network, dsb) → fallback ke template picker
+    window.location.href = "/dashboard/templates"
   }
 }
 
@@ -79,15 +84,10 @@ export default function AuthForm() {
     setLoading(true)
     try {
       if (mode === "register") {
-        const result = await api.register(email, password, name)
-        // Cek apakah butuh OTP verification
-        if ("requiresVerification" in result && result.requiresVerification) {
-          window.location.href = `/auth/verify-email?email=${encodeURIComponent(email)}`
-          return
-        }
-        setAuthToken(result.token)
-        setSuccessMsg("Akun berhasil dibuat! Mengalihkan... 🎉")
-        setTimeout(() => smartRedirect(), 800)
+        await api.register(email, password, name)
+        // BE require email verification sebelum token aktif — selalu ke OTP page
+        window.location.href = `/auth/verify-email?email=${encodeURIComponent(email)}`
+        return
       } else {
         const { token } = await api.login(email, password)
         setAuthToken(token)

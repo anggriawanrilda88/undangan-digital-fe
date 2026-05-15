@@ -65,6 +65,10 @@ async function apiFetch<T>(
   }
 
   if (!res.ok || !parsed.success) {
+    // Normalize semua 401 ke code UNAUTHORIZED — BE bisa return berbagai code
+    if (res.status === 401) {
+      throw new ApiException("UNAUTHORIZED", "Sesi kamu sudah habis. Silakan masuk kembali.")
+    }
     const err = (parsed as ApiError).error
     throw new ApiException(err?.code ?? "UNKNOWN", err?.message ?? `HTTP ${res.status}`)
   }

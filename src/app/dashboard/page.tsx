@@ -27,10 +27,10 @@ export default function DashboardPage() {
         }
       })
       .catch(err => {
-        if (err?.code === "UNAUTHORIZED" || err?.message?.includes("401")) {
+        if (err?.code === "UNAUTHORIZED" || err?.message?.includes("401") || err?.message?.includes("Sesi")) {
           logout()
         } else {
-          setError("Gagal memuat undangan.")
+          setError("Gagal memuat undangan. " + (err?.message ?? ""))
         }
       })
       .finally(() => setLoading(false))

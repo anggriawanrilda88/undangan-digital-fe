@@ -153,9 +153,7 @@ function VerifyEmailContent() {
     setLoading(true)
     try {
       const result = await api.verifyEmail(email, code)
-      if ("token" in result && result.token) {
-        setAuthToken(result.token)
-      }
+      setAuthToken(result.token)
       setVerified(true)
       setTimeout(() => smartRedirect(), 1200)
     } catch (err) {
