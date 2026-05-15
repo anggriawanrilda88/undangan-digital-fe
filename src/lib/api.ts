@@ -110,6 +110,35 @@ export const api = {
   deleteInvitation: (id: string) =>
     apiFetch<null>(`/invitations/${id}`, { method: "DELETE" }),
 
+  // ── OTP & Password Recovery ──
+  verifyEmail: (email: string, otp: string) =>
+    apiFetch<{ token: string }>("/auth/verify-email", {
+      method: "POST",
+      body: JSON.stringify({ email, otp }),
+      authenticated: false,
+    }),
+
+  resendOtp: (email: string) =>
+    apiFetch<null>("/auth/resend-otp", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+      authenticated: false,
+    }),
+
+  forgotPassword: (email: string) =>
+    apiFetch<null>("/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+      authenticated: false,
+    }),
+
+  resetPassword: (token: string, newPassword: string) =>
+    apiFetch<null>("/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify({ token, newPassword }),
+      authenticated: false,
+    }),
+
   // Debounce 400ms sebelum call! (slug validation)
   checkSlug: (slug: string) =>
     apiFetch<SlugCheckResult>(`/slugs/check?slug=${encodeURIComponent(slug)}`),

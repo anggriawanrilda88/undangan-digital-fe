@@ -58,6 +58,7 @@ export default function EditorPage({ params }: PageProps) {
     <EditorShell
       TemplateComponent={TemplateComponent}
       data={data}
+      invitationId={id}
       saveStatus={saveStatus}
       publishStatus={publishStatus}
       invitationStatus={invitationStatus}

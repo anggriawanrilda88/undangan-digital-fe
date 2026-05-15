@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Eye, EyeOff, Save, Check, Copy, Loader2, AlertCircle, ChevronLeft, Rocket, CheckCircle2 } from "lucide-react"
+import { Eye, EyeOff, Save, Check, Copy, Loader2, AlertCircle, ChevronLeft, Rocket, CheckCircle2, LayoutTemplate } from "lucide-react"
 import Link from "next/link"
 import type { TemplateProps } from "@/types/template"
 import type { InvitationStatus } from "@/types/api"
@@ -14,6 +14,8 @@ interface EditorShellProps {
   TemplateComponent: React.ComponentType<TemplateProps>
   /** Data undangan dari hook */
   data: TemplateProps
+  /** ID undangan (untuk link ubah template) */
+  invitationId: string
   /** Status save */
   saveStatus: "idle" | "saving" | "saved" | "error"
   /** Status publish */
@@ -33,6 +35,7 @@ interface EditorShellProps {
 export default function EditorShell({
   TemplateComponent,
   data,
+  invitationId,
   saveStatus,
   publishStatus,
   invitationStatus,
@@ -43,6 +46,7 @@ export default function EditorShell({
 }: EditorShellProps) {
   const [isPreviewMode, setIsPreviewMode] = useState(false)
   const [showPublishConfirm, setShowPublishConfirm] = useState(false)
+  const [showChangeTemplateConfirm, setShowChangeTemplateConfirm] = useState(false)
   const [validationErrors, setValidationErrors] = useState<string[]>([])
 
   const isPublished = invitationStatus === "published"
@@ -101,8 +105,16 @@ export default function EditorShell({
           <ChevronLeft size={14} />
           Dashboard
         </Link>
+        {/* FE-S02-8: Ubah Template button */}
+        <button
+          onClick={() => setShowChangeTemplateConfirm(true)}
+          className="flex items-center gap-1 text-xs text-stone-400 hover:text-stone-700 transition-colors shrink-0"
+        >
+          <LayoutTemplate size={13} />
+          Ubah Template
+        </button>
         <div className="flex items-center gap-2">
-          <SaveIndicator status={saveStatus} />
+          <SaveIndicator status={saveStatus} isPublished={isPublished} />
           <button
             onClick={handleSave}
             disabled={saveStatus === "saving"}
@@ -212,6 +224,16 @@ export default function EditorShell({
           />
         )}
       </AnimatePresence>
+
+      {/* FE-S02-8: Change template confirm modal */}
+      <AnimatePresence>
+        {showChangeTemplateConfirm && (
+          <ChangeTemplateModal
+            invitationId={invitationId}
+            onCancel={() => setShowChangeTemplateConfirm(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -287,9 +309,62 @@ function PublishConfirmModal({
   )
 }
 
+// ─── Change Template Modal ─────────────────────────────────
+
+function ChangeTemplateModal({
+  invitationId, onCancel,
+}: {
+  invitationId: string
+  onCancel: () => void
+}) {
+  return (
+    <>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/40 z-40"
+        onClick={onCancel}
+      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        className="fixed inset-x-4 top-1/3 z-50 bg-white rounded-2xl p-6 shadow-xl max-w-sm mx-auto"
+      >
+        <div className="text-2xl mb-3">🎨</div>
+        <h3 className="font-semibold text-stone-800 mb-1">Ubah Template?</h3>
+        <p className="text-sm text-stone-500 mb-5">
+          Tampilan undangan akan berubah sesuai template baru. Tenang — semua data (nama, tanggal, venue, dll.) tetap tersimpan.
+        </p>
+        <div className="flex gap-2">
+          <button
+            onClick={onCancel}
+            className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-stone-100 text-stone-700 hover:bg-stone-200 transition-colors"
+          >
+            Batal
+          </button>
+          <a
+            href={`/dashboard/templates?change=${invitationId}`}
+            className="flex-1 py-2.5 rounded-xl text-sm font-medium text-center bg-amber-600 text-white hover:bg-amber-700 transition-colors"
+          >
+            Pilih Template
+          </a>
+        </div>
+      </motion.div>
+    </>
+  )
+}
+
 // ─── Save Indicator ───────────────────────────────────────
 
-function SaveIndicator({ status }: { status: EditorShellProps["saveStatus"] }) {
+function SaveIndicator({
+  status,
+  isPublished,
+}: {
+  status: EditorShellProps["saveStatus"]
+  isPublished: boolean
+}) {
   if (status === "idle") return null
   return (
     <motion.div
@@ -303,7 +378,11 @@ function SaveIndicator({ status }: { status: EditorShellProps["saveStatus"] }) {
       )}
     >
       {status === "saving" && <><Loader2 size={12} className="animate-spin" /> Menyimpan...</>}
-      {status === "saved" && <><Check size={12} /> Tersimpan</>}
+      {status === "saved" && (
+        isPublished
+          ? <><Check size={12} /> Tersimpan &amp; langsung live</>
+          : <><Check size={12} /> Tersimpan</>
+      )}
       {status === "error" && <><AlertCircle size={12} /> Gagal menyimpan</>}
     </motion.div>
   )

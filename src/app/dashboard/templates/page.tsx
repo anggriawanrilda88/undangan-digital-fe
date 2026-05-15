@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { ArrowRight, Loader2 } from "lucide-react"
 import TemplatePicker from "@/components/templates/TemplatePicker"
@@ -9,11 +9,17 @@ import { api } from "@/lib/api"
 import { TEMPLATE_PREVIEW_DATA } from "@/types/template"
 import { templatePropsToUpdateRequest } from "@/types/adapters"
 
-export default function TemplatePickerPage() {
+function TemplatePickerContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  // change=<invitationId> → ganti template existing invitation
+  const changeInvitationId = searchParams.get("change") ?? null
+
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const isChangeMode = !!changeInvitationId
 
   const handleContinue = async () => {
     if (!selectedId) return
@@ -21,26 +27,32 @@ export default function TemplatePickerPage() {
     setLoading(true)
 
     try {
-      // Generate slug unik tiap kali — hindari konflik kalau user bolak-balik pilih template
-      const uniqueSlug = `undangan-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`
-
-      // Buat undangan baru dengan template yang dipilih + dummy data awal
-      const initialProps = {
-        ...TEMPLATE_PREVIEW_DATA,
-        meta: { ...TEMPLATE_PREVIEW_DATA.meta, templateId: selectedId, slug: uniqueSlug },
+      if (isChangeMode) {
+        // FE-S02-8: Update template existing invitation — data tidak hilang
+        await api.updateInvitation(changeInvitationId, {
+          config: {
+            templateId: selectedId,
+            colors: { primary: "#B5936E", secondary: "#F5ECD7" },
+          },
+        })
+        router.push(`/dashboard/editor/${changeInvitationId}`)
+      } else {
+        // Buat undangan baru seperti biasa
+        const uniqueSlug = `undangan-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`
+        const initialProps = {
+          ...TEMPLATE_PREVIEW_DATA,
+          meta: { ...TEMPLATE_PREVIEW_DATA.meta, templateId: selectedId, slug: uniqueSlug },
+        }
+        const payload = templatePropsToUpdateRequest(initialProps)
+        const invitation = await api.createInvitation({
+          slug: payload.slug!,
+          config: payload.config,
+          content: payload.content!,
+        })
+        router.push(`/dashboard/editor/${invitation.id}`)
       }
-      const payload = templatePropsToUpdateRequest(initialProps)
-
-      const invitation = await api.createInvitation({
-        slug: payload.slug!,
-        config: payload.config,
-        content: payload.content!,
-      })
-
-      // Redirect ke editor dengan invitation ID
-      router.push(`/dashboard/editor/${invitation.id}`)
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Gagal membuat undangan"
+      const msg = err instanceof Error ? err.message : "Gagal memproses template"
       setError(msg)
       setLoading(false)
     }
@@ -50,14 +62,16 @@ export default function TemplatePickerPage() {
     <main className="min-h-screen bg-stone-50">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white border-b border-stone-200 px-4 h-14 flex items-center justify-between shadow-sm">
-        <h1 className="font-semibold text-stone-800">Pilih Template</h1>
+        <h1 className="font-semibold text-stone-800">
+          {isChangeMode ? "Ubah Template" : "Pilih Template"}
+        </h1>
         <button
           onClick={handleContinue}
           disabled={!selectedId || loading}
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-600 text-white text-sm font-medium hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : null}
-          Lanjut
+          {isChangeMode ? "Pakai Template Ini" : "Lanjut"}
           {!loading && <ArrowRight size={14} />}
         </button>
       </div>
@@ -69,19 +83,20 @@ export default function TemplatePickerPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 text-center"
         >
-          <h2 className="text-xl font-bold text-stone-800">Pilih template undangan</h2>
+          <h2 className="text-xl font-bold text-stone-800">
+            {isChangeMode ? "Pilih template baru" : "Pilih template undangan"}
+          </h2>
           <p className="mt-1 text-sm text-stone-500">
-            Kamu bisa ganti template sebelum undangan dipublikasikan.
+            {isChangeMode
+              ? "Data undangan kamu (nama, tanggal, venue, dll.) tidak akan berubah."
+              : "Kamu bisa ganti template sebelum undangan dipublikasikan."}
           </p>
         </motion.div>
 
         <TemplatePicker
           selectedId={selectedId ?? undefined}
           onSelect={setSelectedId}
-          onPreview={(id) => {
-            // Buka preview di tab baru
-            window.open(`/preview/${id}`, "_blank")
-          }}
+          // onPreview disembunyikan (FE-S02-7)
         />
 
         {error && (
@@ -104,11 +119,24 @@ export default function TemplatePickerPage() {
               onClick={handleContinue}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-600 text-white font-medium hover:opacity-90 transition-opacity"
             >
-              Pakai template ini <ArrowRight size={16} />
+              {isChangeMode ? "Pakai template ini" : "Lanjut dengan template ini"}{" "}
+              <ArrowRight size={16} />
             </button>
           </motion.div>
         )}
       </div>
     </main>
+  )
+}
+
+export default function TemplatePickerPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+        <Loader2 size={24} className="animate-spin text-amber-500" />
+      </div>
+    }>
+      <TemplatePickerContent />
+    </Suspense>
   )
 }

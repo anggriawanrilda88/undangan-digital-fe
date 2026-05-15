@@ -107,7 +107,7 @@ export default function TemplatePicker({ selectedId, onSelect, onPreview }: Temp
                 </motion.div>
               )}
 
-              {/* Preview overlay on hover */}
+              {/* Preview overlay on hover — disembunyikan dari UI (internal use only)
               {hovered === template.id && onPreview && (
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -120,6 +120,7 @@ export default function TemplatePicker({ selectedId, onSelect, onPreview }: Temp
                   </button>
                 </motion.div>
               )}
+              */}
             </div>
 
             {/* Info */}
