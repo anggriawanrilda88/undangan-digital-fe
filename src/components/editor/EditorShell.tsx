@@ -109,12 +109,8 @@ export default function EditorShell({
           <span className="hidden sm:inline text-xs">Keluar</span>
         </button>
 
-        {/* Tengah: nama template */}
-        <div className="flex-1 flex justify-center">
-          <span className="text-xs font-medium text-stone-500 truncate">
-            ✏️ <span className="text-stone-700">{templateName}</span>
-          </span>
-        </div>
+        {/* Tengah: kosong */}
+        <div className="flex-1" />
 
         {/* Kanan: Save, Preview, Publish/Unpublish */}
         <div className="flex items-center gap-1.5">
@@ -231,7 +227,7 @@ export default function EditorShell({
               transition={{ duration: 0.22 }}
               className="absolute inset-0 overflow-y-auto"
             >
-              <EditorForm data={data} onUpdate={onUpdate} onSave={handleSave} onChangeTemplate={() => setShowChangeTemplateConfirm(true)} />
+              <EditorForm data={data} onUpdate={onUpdate} onSave={handleSave} onChangeTemplate={() => setShowChangeTemplateConfirm(true)} templateName={templateName} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -418,11 +414,13 @@ function EditorForm({
   onUpdate,
   onSave,
   onChangeTemplate,
+  templateName,
 }: {
   data: TemplateProps
   onUpdate: EditorShellProps["onUpdate"]
   onSave: EditorShellProps["onSave"]
   onChangeTemplate: () => void
+  templateName: string
 }) {
   const set = <K extends keyof TemplateProps>(key: K, value: TemplateProps[K]) =>
     onUpdate(prev => ({ ...prev, [key]: value }))
@@ -437,6 +435,7 @@ function EditorForm({
   const [slugStatus, setSlugStatus] = useState<"idle" | "checking" | "available" | "taken">("idle")
   const slugTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const originalSlug = useRef(data.meta.slug)
+  const [copiedLink, setCopiedLink] = useState(false)
 
   const handleSlugChange = (raw: string) => {
     const slug = raw.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")
@@ -463,6 +462,12 @@ function EditorForm({
 
   return (
     <div className="max-w-lg mx-auto px-4 py-6 space-y-8 pb-24">
+
+      {/* Nama template aktif */}
+      <div className="flex items-center justify-between py-2 px-3 rounded-xl bg-stone-100">
+        <span className="text-xs text-stone-500">Template aktif</span>
+        <span className="text-xs font-semibold text-stone-700">{templateName}</span>
+      </div>
 
       {/* Ubah Template — floating button di bawah */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
@@ -641,6 +646,29 @@ function EditorForm({
             <p className="flex items-center gap-1 text-xs text-red-500 mt-1">
               <AlertCircle size={11} /> Slug ini sudah dipakai, coba yang lain
             </p>
+          )}
+
+          {/* Copy full link */}
+          {data.meta.slug && (
+            <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-stone-50 border border-stone-100">
+              <span className="flex-1 text-xs text-stone-500 font-mono truncate">
+                {(process.env.NEXT_PUBLIC_BASE_URL ?? "https://undangan-digital.anggriawan.my.id")}/u/{data.meta.slug}
+              </span>
+              <button
+                onClick={() => {
+                  const url = `${process.env.NEXT_PUBLIC_BASE_URL ?? "https://undangan-digital.anggriawan.my.id"}/u/${data.meta.slug}`
+                  navigator.clipboard.writeText(url)
+                  setCopiedLink(true)
+                  setTimeout(() => setCopiedLink(false), 2000)
+                }}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-white border border-stone-200 text-stone-600 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 transition-colors shrink-0"
+              >
+                {copiedLink
+                  ? <><Check size={11} className="text-green-600" /> Tersalin</>
+                  : <><Copy size={11} /> Salin Link</>
+                }
+              </button>
+            </div>
           )}
         </Field>
 
