@@ -464,9 +464,9 @@ function EditorForm({
     <div className="max-w-lg mx-auto px-4 py-6 space-y-8 pb-24">
 
       {/* Nama template aktif */}
-      <div className="flex items-center justify-between py-2 px-3 rounded-xl bg-stone-100">
+      <div className="flex items-center justify-between py-2.5 px-3 rounded-xl bg-stone-100">
         <span className="text-xs text-stone-500">Template aktif</span>
-        <span className="text-xs font-semibold text-stone-700">{templateName}</span>
+        <span className="text-sm font-bold text-stone-800">{templateName}</span>
       </div>
 
       {/* Ubah Template — floating button di bawah */}

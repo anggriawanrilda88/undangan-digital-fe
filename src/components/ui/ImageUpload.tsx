@@ -56,14 +56,19 @@ export default function ImageUpload({
     try {
       // 1. Kompres di client-side sebelum upload
       setProgress(20)
-      const compressed = await imageCompression(file, COMPRESSION_OPTIONS)
+      let fileToUpload: File
+      try {
+        const compressed = await imageCompression(file, COMPRESSION_OPTIONS)
+        fileToUpload = new File([compressed], file.name, { type: "image/webp" })
+      } catch {
+        // Kompresi gagal (misal PNG transparan) — upload file asli
+        fileToUpload = file
+      }
       setProgress(50)
 
       // 2. Upload ke BE → BE yang kirim ke MinIO
       setProgress(70)
-      const url = await api.uploadImage(
-        new File([compressed], file.name, { type: "image/webp" })
-      )
+      const url = await api.uploadImage(fileToUpload)
       setProgress(100)
 
       onChange(url)
