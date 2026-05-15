@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Eye, EyeOff, Save, Check, Copy, Loader2, AlertCircle, Rocket, CheckCircle2, LayoutTemplate } from "lucide-react"
+import { Eye, EyeOff, Save, Check, Copy, Loader2, AlertCircle, Rocket, CheckCircle2, LayoutTemplate, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { TemplateProps } from "@/types/template"
 import type { InvitationStatus } from "@/types/api"
@@ -96,14 +96,24 @@ export default function EditorShell({
     <div className="min-h-screen bg-stone-50 flex flex-col">
       {/* === TOPBAR === */}
       <header className="sticky top-0 z-50 bg-white border-b border-stone-200 px-4 h-14 flex items-center justify-between gap-3 shadow-sm">
-        {/* Kiri: Ubah Template */}
-        <button
-          onClick={() => setShowChangeTemplateConfirm(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-stone-200 text-stone-600 hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50 transition-colors shrink-0"
-        >
-          <LayoutTemplate size={13} />
-          Ubah Template
-        </button>
+        {/* Kiri: Ubah Template + Logout */}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => setShowChangeTemplateConfirm(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-stone-200 text-stone-600 hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50 transition-colors"
+          >
+            <LayoutTemplate size={13} />
+            Ubah Template
+          </button>
+          <button
+            onClick={() => { import("@/lib/auth").then(m => m.logout()) }}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-stone-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+            title="Keluar"
+          >
+            <LogOut size={13} />
+            <span className="hidden sm:inline">Keluar</span>
+          </button>
+        </div>
 
         {/* Kanan: action buttons + save indicator */}
         <div className="flex items-center gap-2 ml-auto">
