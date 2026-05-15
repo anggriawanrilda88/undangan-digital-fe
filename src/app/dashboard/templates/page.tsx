@@ -67,11 +67,11 @@ function TemplatePickerContent() {
         <div className="flex-1">
           {isChangeMode ? (
             <button
-              onClick={() => router.back()}
+              onClick={() => router.push(`/dashboard/editor/${changeInvitationId}`)}
               className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-800 transition-colors"
             >
               <ChevronLeft size={14} />
-              <span className="hidden sm:inline">Kembali ke Editor</span>
+              Kembali
             </button>
           ) : (
             <button
@@ -79,7 +79,7 @@ function TemplatePickerContent() {
               className="flex items-center gap-1 text-xs text-stone-400 hover:text-stone-700 transition-colors"
             >
               <LogOut size={13} />
-              <span className="hidden sm:inline">Keluar</span>
+              Keluar
             </button>
           )}
         </div>
@@ -98,8 +98,10 @@ function TemplatePickerContent() {
           >
             {loading
               ? <Loader2 size={14} className="animate-spin" />
-              : <ArrowRight size={14} />}
-            <span className="hidden sm:inline">{isChangeMode ? "Pakai Ini" : "Lanjut"}</span>
+              : <>
+                  <span>{isChangeMode ? "Pakai Ini" : "Lanjut"}</span>
+                  <ArrowRight size={14} />
+                </>}
           </button>
         </div>
       </div>
