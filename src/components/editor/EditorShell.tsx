@@ -96,33 +96,22 @@ export default function EditorShell({
     <div className="min-h-screen bg-stone-50 flex flex-col">
       {/* === TOPBAR === */}
       <header className="sticky top-0 z-50 bg-white border-b border-stone-200 px-3 h-14 flex items-center justify-between gap-2 shadow-sm">
-        {/* Kiri: Ubah Template + Logout */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          <button
-            onClick={() => setShowChangeTemplateConfirm(true)}
-            className="flex items-center gap-1.5 px-2.5 py-2 sm:px-3 sm:py-1.5 rounded-lg text-xs font-medium border border-stone-200 text-stone-600 hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50 transition-colors"
-            title="Ubah Template"
-          >
-            <LayoutTemplate size={14} />
-            <span className="hidden sm:inline">Ubah Template</span>
-          </button>
-          <button
-            onClick={() => { import("@/lib/auth").then(m => m.logout()) }}
-            className="flex items-center gap-1 p-2 rounded-lg text-xs font-medium text-stone-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-            title="Keluar"
-          >
-            <LogOut size={14} />
-            <span className="hidden sm:inline">Keluar</span>
-          </button>
-        </div>
+        {/* Kiri: hanya Keluar */}
+        <button
+          onClick={() => { import("@/lib/auth").then(m => m.logout()) }}
+          className="flex items-center gap-1.5 p-2 rounded-lg text-xs font-medium text-stone-400 hover:text-red-600 hover:bg-red-50 transition-colors shrink-0"
+          title="Keluar"
+        >
+          <LogOut size={15} />
+          <span className="hidden sm:inline text-xs">Keluar</span>
+        </button>
 
-        {/* Kanan: action buttons */}
+        {/* Kanan: Save, Preview, Publish */}
         <div className="flex items-center gap-1.5">
-          {/* Save button */}
           <button
             onClick={handleSave}
             disabled={saveStatus === "saving"}
-            className="flex items-center gap-1.5 px-2.5 py-2 sm:px-3 sm:py-1.5 rounded-lg text-xs font-medium bg-stone-100 text-stone-700 hover:bg-stone-200 disabled:opacity-50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-stone-100 text-stone-700 hover:bg-stone-200 disabled:opacity-50 transition-colors"
             title="Simpan"
           >
             {saveStatus === "saving"
@@ -130,11 +119,10 @@ export default function EditorShell({
               : <Save size={14} />}
             <span className="hidden sm:inline">Simpan</span>
           </button>
-          {/* Preview toggle */}
           <button
             onClick={() => setIsPreviewMode(p => !p)}
             className={cn(
-              "flex items-center gap-1.5 px-2.5 py-2 sm:px-3 sm:py-1.5 rounded-lg text-xs font-medium transition-colors",
+              "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors",
               isPreviewMode
                 ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
                 : "bg-stone-100 text-stone-700 hover:bg-stone-200"
@@ -144,38 +132,29 @@ export default function EditorShell({
             {isPreviewMode ? <EyeOff size={14} /> : <Eye size={14} />}
             <span className="hidden sm:inline">{isPreviewMode ? "Kembali" : "Preview"}</span>
           </button>
-          {/* Publish/Unpublish */}
           {isPublished ? (
-            <div className="flex items-center gap-1.5">
-              <span className="hidden xs:flex items-center gap-1 text-xs font-medium text-green-700 bg-green-100 px-2 py-1.5 rounded-lg whitespace-nowrap">
-                <CheckCircle2 size={12} />
-                <span className="hidden sm:inline">Published</span>
-              </span>
-              <button
-                onClick={handleUnpublish}
-                disabled={publishStatus === "publishing"}
-                className="flex items-center gap-1.5 px-2.5 py-2 sm:px-3 sm:py-1.5 rounded-lg text-xs font-medium bg-stone-100 text-stone-700 hover:bg-stone-200 disabled:opacity-50 transition-colors"
-                title="Unpublish"
-              >
-                {publishStatus === "publishing"
-                  ? <Loader2 size={14} className="animate-spin" />
-                  : <CheckCircle2 size={14} className="text-green-600" />}
-                <span className="hidden sm:inline">Unpublish</span>
-              </button>
-            </div>
+            <button
+              onClick={handleUnpublish}
+              disabled={publishStatus === "publishing"}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-green-100 text-green-700 hover:bg-green-200 disabled:opacity-50 transition-colors"
+              title="Unpublish"
+            >
+              {publishStatus === "publishing"
+                ? <Loader2 size={14} className="animate-spin" />
+                : <CheckCircle2 size={14} />}
+              <span className="hidden sm:inline">Published</span>
+            </button>
           ) : (
             <button
               onClick={() => setShowPublishConfirm(true)}
               disabled={publishStatus === "publishing"}
-              className="flex items-center gap-1.5 px-2.5 py-2 sm:px-3 sm:py-1.5 rounded-lg text-xs font-medium bg-amber-600 text-white hover:bg-amber-700 disabled:opacity-50 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-amber-600 text-white hover:bg-amber-700 disabled:opacity-50 transition-colors"
               title="Publish"
             >
               {publishStatus === "publishing"
                 ? <Loader2 size={14} className="animate-spin" />
                 : <Rocket size={14} />}
-              <span className="hidden sm:inline">
-                {publishStatus === "publishing" ? "Mempublish..." : "Publish"}
-              </span>
+              <span className="hidden sm:inline">Publish</span>
             </button>
           )}
         </div>
@@ -244,7 +223,7 @@ export default function EditorShell({
               transition={{ duration: 0.22 }}
               className="absolute inset-0 overflow-y-auto"
             >
-              <EditorForm data={data} onUpdate={onUpdate} onSave={handleSave} />
+              <EditorForm data={data} onUpdate={onUpdate} onSave={handleSave} onChangeTemplate={() => setShowChangeTemplateConfirm(true)} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -430,10 +409,12 @@ function EditorForm({
   data,
   onUpdate,
   onSave,
+  onChangeTemplate,
 }: {
   data: TemplateProps
   onUpdate: EditorShellProps["onUpdate"]
   onSave: EditorShellProps["onSave"]
+  onChangeTemplate: () => void
 }) {
   const set = <K extends keyof TemplateProps>(key: K, value: TemplateProps[K]) =>
     onUpdate(prev => ({ ...prev, [key]: value }))
@@ -474,6 +455,17 @@ function EditorForm({
 
   return (
     <div className="max-w-lg mx-auto px-4 py-6 space-y-8 pb-24">
+
+      {/* Ubah Template — di dalam scroll area, tidak di topbar */}
+      <div className="flex justify-end">
+        <button
+          onClick={onChangeTemplate}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border border-stone-200 text-stone-500 hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50 transition-colors"
+        >
+          <LayoutTemplate size={13} />
+          Ubah Template
+        </button>
+      </div>
 
       {/* FOTO COUPLE */}
       <Section title="📸 Foto Couple">

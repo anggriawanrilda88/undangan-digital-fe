@@ -54,7 +54,7 @@ export default function TemplatePicker({ selectedId, onSelect, onPreview }: Temp
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-3">
         {AVAILABLE_TEMPLATES.map((template, i) => (
           <motion.div
             key={template.id}
@@ -77,9 +77,9 @@ export default function TemplatePicker({ selectedId, onSelect, onPreview }: Temp
                 src={template.thumbnail}
                 alt={template.name}
                 fill
+                unoptimized
                 className="object-cover z-10"
                 onError={(e) => {
-                  // Fallback gradient kalau thumbnail belum ada
                   const target = e.target as HTMLImageElement
                   target.style.display = "none"
                 }}
