@@ -3,11 +3,12 @@
 import { useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
-import { ArrowRight, Loader2 } from "lucide-react"
+import { ArrowRight, Loader2, ChevronLeft, LogOut } from "lucide-react"
 import TemplatePicker from "@/components/templates/TemplatePicker"
 import { api } from "@/lib/api"
 import { TEMPLATE_PREVIEW_DATA } from "@/types/template"
 import { templatePropsToUpdateRequest } from "@/types/adapters"
+import { logout } from "@/lib/auth"
 
 function TemplatePickerContent() {
   const router = useRouter()
@@ -62,9 +63,30 @@ function TemplatePickerContent() {
     <main className="min-h-screen bg-stone-50">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white border-b border-stone-200 px-4 h-14 flex items-center justify-between shadow-sm">
-        <h1 className="font-semibold text-stone-800">
+        {/* Kiri: back navigation */}
+        {isChangeMode ? (
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-800 transition-colors"
+          >
+            <ChevronLeft size={14} />
+            Kembali ke Editor
+          </button>
+        ) : (
+          <button
+            onClick={() => logout()}
+            className="flex items-center gap-1 text-xs text-stone-400 hover:text-stone-700 transition-colors"
+          >
+            <LogOut size={13} />
+            Keluar
+          </button>
+        )}
+
+        <h1 className="font-semibold text-stone-800 text-sm absolute left-1/2 -translate-x-1/2">
           {isChangeMode ? "Ubah Template" : "Pilih Template"}
         </h1>
+
+        {/* Kanan: tombol lanjut */}
         <button
           onClick={handleContinue}
           disabled={!selectedId || loading}
