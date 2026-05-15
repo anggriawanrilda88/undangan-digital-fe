@@ -77,7 +77,7 @@ export default function TemplatePicker({ selectedId, onSelect, onPreview }: Temp
                 src={template.thumbnail}
                 alt={template.name}
                 fill
-                className="object-cover"
+                className="object-cover z-10"
                 onError={(e) => {
                   // Fallback gradient kalau thumbnail belum ada
                   const target = e.target as HTMLImageElement
@@ -85,7 +85,7 @@ export default function TemplatePicker({ selectedId, onSelect, onPreview }: Temp
                 }}
               />
               {/* Fallback placeholder kalau image tidak ada */}
-              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-amber-50 to-stone-200">
+              <div className="absolute inset-0 z-0 flex items-center justify-center bg-gradient-to-br from-amber-50 to-stone-200">
                 <span className="text-4xl opacity-30">💍</span>
               </div>
 
