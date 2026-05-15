@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Eye, EyeOff, Save, Check, Copy, Loader2, AlertCircle, Rocket, CheckCircle2, LayoutTemplate, LogOut } from "lucide-react"
+import { Eye, EyeOff, Save, Check, Copy, Loader2, AlertCircle, CheckCircle2, LayoutTemplate, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { TemplateProps } from "@/types/template"
 import type { InvitationStatus } from "@/types/api"
@@ -13,6 +13,8 @@ interface EditorShellProps {
   TemplateComponent: React.ComponentType<TemplateProps>
   /** Data undangan dari hook */
   data: TemplateProps
+  /** Nama template yang sedang dipakai */
+  templateName: string
   /** ID undangan (untuk link ubah template) */
   invitationId: string
   /** Status save */
@@ -34,6 +36,7 @@ interface EditorShellProps {
 export default function EditorShell({
   TemplateComponent,
   data,
+  templateName,
   invitationId,
   saveStatus,
   publishStatus,
@@ -95,8 +98,8 @@ export default function EditorShell({
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col">
       {/* === TOPBAR === */}
-      <header className="sticky top-0 z-50 bg-white border-b border-stone-200 px-3 h-14 flex items-center justify-between gap-2 shadow-sm">
-        {/* Kiri: hanya Keluar */}
+      <header className="sticky top-0 z-50 bg-white border-b border-stone-200 px-3 h-14 flex items-center gap-2 shadow-sm">
+        {/* Kiri: Keluar */}
         <button
           onClick={() => { import("@/lib/auth").then(m => m.logout()) }}
           className="flex items-center gap-1.5 p-2 rounded-lg text-xs font-medium text-stone-400 hover:text-red-600 hover:bg-red-50 transition-colors shrink-0"
@@ -106,7 +109,14 @@ export default function EditorShell({
           <span className="hidden sm:inline text-xs">Keluar</span>
         </button>
 
-        {/* Kanan: Save, Preview, Publish */}
+        {/* Tengah: nama template */}
+        <div className="flex-1 flex justify-center">
+          <span className="text-xs font-medium text-stone-500 truncate">
+            ✏️ <span className="text-stone-700">{templateName}</span>
+          </span>
+        </div>
+
+        {/* Kanan: Save, Preview, Publish/Unpublish */}
         <div className="flex items-center gap-1.5">
           <button
             onClick={handleSave}
@@ -137,24 +147,22 @@ export default function EditorShell({
               onClick={handleUnpublish}
               disabled={publishStatus === "publishing"}
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-green-100 text-green-700 hover:bg-green-200 disabled:opacity-50 transition-colors"
-              title="Unpublish"
             >
               {publishStatus === "publishing"
                 ? <Loader2 size={14} className="animate-spin" />
-                : <CheckCircle2 size={14} />}
-              <span className="hidden sm:inline">Published</span>
+                : null}
+              Unpublish
             </button>
           ) : (
             <button
               onClick={() => setShowPublishConfirm(true)}
               disabled={publishStatus === "publishing"}
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-amber-600 text-white hover:bg-amber-700 disabled:opacity-50 transition-colors"
-              title="Publish"
             >
               {publishStatus === "publishing"
                 ? <Loader2 size={14} className="animate-spin" />
-                : <Rocket size={14} />}
-              <span className="hidden sm:inline">Publish</span>
+                : null}
+              Publish
             </button>
           )}
         </div>

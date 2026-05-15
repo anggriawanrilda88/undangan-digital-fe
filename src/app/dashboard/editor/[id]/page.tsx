@@ -15,6 +15,12 @@ const TEMPLATE_MAP: Record<string, React.ComponentType<import("@/types/template"
   "royal-batik": TemplateRoyalBatik,
 }
 
+const TEMPLATE_NAMES: Record<string, string> = {
+  "elegant-garden": "Elegant Garden",
+  "modern-serif": "Modern Serif",
+  "royal-batik": "Royal Batik",
+}
+
 const FALLBACK_TEMPLATE = TemplateElegantGarden
 
 interface PageProps {
@@ -53,11 +59,13 @@ export default function EditorPage({ params }: PageProps) {
 
   // Pilih template component berdasarkan templateId
   const TemplateComponent = TEMPLATE_MAP[data.meta.templateId] ?? FALLBACK_TEMPLATE
+  const templateName = TEMPLATE_NAMES[data.meta.templateId] ?? data.meta.templateId
 
   return (
     <EditorShell
       TemplateComponent={TemplateComponent}
       data={data}
+      templateName={templateName}
       invitationId={id}
       saveStatus={saveStatus}
       publishStatus={publishStatus}

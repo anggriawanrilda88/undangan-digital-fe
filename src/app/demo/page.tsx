@@ -21,6 +21,7 @@ export default function DemoPage() {
     <EditorShell
       TemplateComponent={TemplateElegantGarden}
       data={data}
+      templateName="Elegant Garden"
       invitationId="demo"
       saveStatus={saveStatus}
       publishStatus="idle"
