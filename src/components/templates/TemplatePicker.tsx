@@ -47,9 +47,10 @@ interface TemplatPickerProps {
   selectedId?: string
   onSelect: (templateId: string) => void
   onPreview?: (templateId: string) => void
+  changeId?: string  // pass dari template picker page agar preview bawa kembali ?change=
 }
 
-export default function TemplatePicker({ selectedId, onSelect, onPreview }: TemplatPickerProps) {
+export default function TemplatePicker({ selectedId, onSelect, onPreview, changeId }: TemplatPickerProps) {
   const [hovered, setHovered] = useState<string | null>(null)
 
   return (
@@ -93,7 +94,10 @@ export default function TemplatePicker({ selectedId, onSelect, onPreview }: Temp
               <button
                 onClick={e => {
                   e.stopPropagation()
-                  window.open(`/preview/${template.id}`, "_blank")
+                  const previewUrl = changeId
+                    ? `/preview/${template.id}?change=${changeId}`
+                    : `/preview/${template.id}`
+                  window.open(previewUrl, "_blank")
                 }}
                 className="absolute top-2 right-2 z-20 flex items-center justify-center w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-sm border border-stone-200 text-stone-600 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 transition-colors"
                 title={`Preview ${template.name}`}

@@ -1,12 +1,14 @@
 "use client"
 
-import { use } from "react"
+import { use, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import TemplateElegantGarden from "@/components/templates/TemplateElegantGarden"
 import TemplateModernSerif from "@/components/templates/TemplateModernSerif"
 import TemplateRoyalBatik from "@/components/templates/TemplateRoyalBatik"
 import { TEMPLATE_PREVIEW_DATA } from "@/types/template"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
+import { Loader2 } from "lucide-react"
 
 const TEMPLATE_MAP: Record<string, React.ComponentType<typeof TEMPLATE_PREVIEW_DATA>> = {
   "elegant-garden": TemplateElegantGarden,
@@ -18,15 +20,21 @@ interface Props {
   params: Promise<{ id: string }>
 }
 
-export default function PreviewPage({ params }: Props) {
-  const { id } = use(params)
+function PreviewContent({ id }: { id: string }) {
+  const searchParams = useSearchParams()
+  // Kalau datang dari ubah-template, bawa kembali ?change=<invitationId>
+  const changeId = searchParams.get("change")
+  const backUrl = changeId
+    ? `/dashboard/templates?change=${changeId}`
+    : "/dashboard/templates"
+
   const TemplateComponent = TEMPLATE_MAP[id]
 
   if (!TemplateComponent) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center gap-4 bg-stone-50">
         <p className="text-stone-500 text-sm">Template &quot;{id}&quot; tidak ditemukan.</p>
-        <Link href="/dashboard/templates" className="text-amber-600 text-sm hover:underline flex items-center gap-1">
+        <Link href={backUrl} className="text-amber-600 text-sm hover:underline flex items-center gap-1">
           <ArrowLeft size={14} /> Kembali pilih template
         </Link>
       </main>
@@ -38,7 +46,7 @@ export default function PreviewPage({ params }: Props) {
       {/* Floating back button */}
       <div className="fixed top-4 left-4 z-50">
         <Link
-          href="/dashboard/templates"
+          href={backUrl}
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/90 backdrop-blur-sm border border-stone-200 text-stone-700 text-xs font-medium shadow-sm hover:bg-white transition-colors"
         >
           <ArrowLeft size={13} /> Kembali
@@ -52,8 +60,21 @@ export default function PreviewPage({ params }: Props) {
         </span>
       </div>
 
-      {/* Template preview */}
       <TemplateComponent {...TEMPLATE_PREVIEW_DATA} />
     </div>
+  )
+}
+
+export default function PreviewPage({ params }: Props) {
+  const { id } = use(params)
+
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 size={24} className="animate-spin text-amber-500" />
+      </div>
+    }>
+      <PreviewContent id={id} />
+    </Suspense>
   )
 }

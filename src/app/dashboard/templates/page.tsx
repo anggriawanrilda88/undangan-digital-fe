@@ -118,7 +118,7 @@ function TemplatePickerContent() {
         <TemplatePicker
           selectedId={selectedId ?? undefined}
           onSelect={setSelectedId}
-          // onPreview disembunyikan (FE-S02-7)
+          changeId={changeInvitationId ?? undefined}
         />
 
         {error && (
@@ -131,21 +131,7 @@ function TemplatePickerContent() {
           </motion.p>
         )}
 
-        {selectedId && !loading && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-6 text-center"
-          >
-            <button
-              onClick={handleContinue}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-600 text-white font-medium hover:opacity-90 transition-opacity"
-            >
-              {isChangeMode ? "Pakai template ini" : "Lanjut dengan template ini"}{" "}
-              <ArrowRight size={16} />
-            </button>
-          </motion.div>
-        )}
+        {/* Tombol lanjut hanya di topbar — tidak ada duplikat di sini */}
       </div>
     </main>
   )
