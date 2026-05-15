@@ -95,83 +95,112 @@ export default function EditorShell({
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col">
       {/* === TOPBAR === */}
-      <header className="sticky top-0 z-50 bg-white border-b border-stone-200 px-4 h-14 flex items-center justify-between gap-3 shadow-sm">
+      <header className="sticky top-0 z-50 bg-white border-b border-stone-200 px-3 h-14 flex items-center justify-between gap-2 shadow-sm">
         {/* Kiri: Ubah Template + Logout */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={() => setShowChangeTemplateConfirm(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-stone-200 text-stone-600 hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50 transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-2 sm:px-3 sm:py-1.5 rounded-lg text-xs font-medium border border-stone-200 text-stone-600 hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50 transition-colors"
+            title="Ubah Template"
           >
-            <LayoutTemplate size={13} />
-            Ubah Template
+            <LayoutTemplate size={14} />
+            <span className="hidden sm:inline">Ubah Template</span>
           </button>
           <button
             onClick={() => { import("@/lib/auth").then(m => m.logout()) }}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-stone-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+            className="flex items-center gap-1 p-2 rounded-lg text-xs font-medium text-stone-400 hover:text-red-600 hover:bg-red-50 transition-colors"
             title="Keluar"
           >
-            <LogOut size={13} />
+            <LogOut size={14} />
             <span className="hidden sm:inline">Keluar</span>
           </button>
         </div>
 
-        {/* Kanan: action buttons + save indicator */}
-        <div className="flex items-center gap-2 ml-auto">
-          {/* SaveIndicator — absolute agar tidak geser layout */}
-          <div className="relative h-6 w-36 hidden sm:block">
-            <div className="absolute right-0 top-1/2 -translate-y-1/2">
-              <SaveIndicator status={saveStatus} isPublished={isPublished} />
-            </div>
-          </div>
+        {/* Kanan: action buttons */}
+        <div className="flex items-center gap-1.5">
+          {/* Save button */}
           <button
             onClick={handleSave}
             disabled={saveStatus === "saving"}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-100 text-stone-700 hover:bg-stone-200 disabled:opacity-50 transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-2 sm:px-3 sm:py-1.5 rounded-lg text-xs font-medium bg-stone-100 text-stone-700 hover:bg-stone-200 disabled:opacity-50 transition-colors"
+            title="Simpan"
           >
-            <Save size={13} />
-            Simpan
+            {saveStatus === "saving"
+              ? <Loader2 size={14} className="animate-spin" />
+              : <Save size={14} />}
+            <span className="hidden sm:inline">Simpan</span>
           </button>
+          {/* Preview toggle */}
           <button
             onClick={() => setIsPreviewMode(p => !p)}
             className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
+              "flex items-center gap-1.5 px-2.5 py-2 sm:px-3 sm:py-1.5 rounded-lg text-xs font-medium transition-colors",
               isPreviewMode
                 ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
                 : "bg-stone-100 text-stone-700 hover:bg-stone-200"
             )}
+            title={isPreviewMode ? "Kembali Edit" : "Preview"}
           >
-            {isPreviewMode ? <><EyeOff size={13} /> Kembali Edit</> : <><Eye size={13} /> Preview</>}
+            {isPreviewMode ? <EyeOff size={14} /> : <Eye size={14} />}
+            <span className="hidden sm:inline">{isPreviewMode ? "Kembali" : "Preview"}</span>
           </button>
           {/* Publish/Unpublish */}
           {isPublished ? (
             <div className="flex items-center gap-1.5">
-              <span className="flex items-center gap-1 text-xs font-medium text-green-700 bg-green-100 px-2.5 py-1.5 rounded-lg whitespace-nowrap">
+              <span className="hidden xs:flex items-center gap-1 text-xs font-medium text-green-700 bg-green-100 px-2 py-1.5 rounded-lg whitespace-nowrap">
                 <CheckCircle2 size={12} />
-                Published
+                <span className="hidden sm:inline">Published</span>
               </span>
               <button
                 onClick={handleUnpublish}
                 disabled={publishStatus === "publishing"}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-100 text-stone-700 hover:bg-stone-200 disabled:opacity-50 transition-colors"
+                className="flex items-center gap-1.5 px-2.5 py-2 sm:px-3 sm:py-1.5 rounded-lg text-xs font-medium bg-stone-100 text-stone-700 hover:bg-stone-200 disabled:opacity-50 transition-colors"
+                title="Unpublish"
               >
-                {publishStatus === "publishing" ? <Loader2 size={13} className="animate-spin" /> : null}
-                Unpublish
+                {publishStatus === "publishing"
+                  ? <Loader2 size={14} className="animate-spin" />
+                  : <CheckCircle2 size={14} className="text-green-600" />}
+                <span className="hidden sm:inline">Unpublish</span>
               </button>
             </div>
           ) : (
             <button
               onClick={() => setShowPublishConfirm(true)}
               disabled={publishStatus === "publishing"}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-600 text-white hover:bg-amber-700 disabled:opacity-50 transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-2 sm:px-3 sm:py-1.5 rounded-lg text-xs font-medium bg-amber-600 text-white hover:bg-amber-700 disabled:opacity-50 transition-colors"
+              title="Publish"
             >
               {publishStatus === "publishing"
-                ? <><Loader2 size={13} className="animate-spin" /> Mempublish...</>
-                : <><Rocket size={13} /> Publish</>
-              }
+                ? <Loader2 size={14} className="animate-spin" />
+                : <Rocket size={14} />}
+              <span className="hidden sm:inline">
+                {publishStatus === "publishing" ? "Mempublish..." : "Publish"}
+              </span>
             </button>
           )}
         </div>
       </header>
+
+      {/* SaveIndicator — bar tipis di bawah topbar, tidak geser layout */}
+      <AnimatePresence>
+        {saveStatus !== "idle" && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className={cn(
+              "w-full flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium",
+              saveStatus === "saving" && "bg-stone-50 text-stone-400",
+              saveStatus === "saved" && "bg-green-50 text-green-700",
+              saveStatus === "error" && "bg-red-50 text-red-600",
+            )}
+          >
+            {saveStatus === "saving" && <><Loader2 size={11} className="animate-spin" /> Menyimpan...</>}
+            {saveStatus === "saved" && <><Check size={11} /> {isPublished ? "Tersimpan \u0026 langsung live" : "Tersimpan"}</> }
+            {saveStatus === "error" && <><AlertCircle size={11} /> Gagal menyimpan</> }
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* FE-BUG-007: Validation error banner */}
       <AnimatePresence>
