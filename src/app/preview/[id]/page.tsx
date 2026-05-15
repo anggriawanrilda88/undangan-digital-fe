@@ -2,16 +2,16 @@
 
 import { use } from "react"
 import TemplateElegantGarden from "@/components/templates/TemplateElegantGarden"
+import TemplateModernSerif from "@/components/templates/TemplateModernSerif"
+import TemplateRoyalBatik from "@/components/templates/TemplateRoyalBatik"
 import { TEMPLATE_PREVIEW_DATA } from "@/types/template"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 
-// Mapping template id → component
-// Tambah template baru di sini kalau ada
 const TEMPLATE_MAP: Record<string, React.ComponentType<typeof TEMPLATE_PREVIEW_DATA>> = {
   "elegant-garden": TemplateElegantGarden,
-  // "modern-serif": TemplateModernSerif,
-  // "minimalist-clean": TemplateMinimalistClean,
+  "modern-serif": TemplateModernSerif,
+  "royal-batik": TemplateRoyalBatik,
 }
 
 interface Props {

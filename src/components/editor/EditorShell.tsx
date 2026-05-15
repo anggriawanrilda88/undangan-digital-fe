@@ -456,13 +456,13 @@ function EditorForm({
   return (
     <div className="max-w-lg mx-auto px-4 py-6 space-y-8 pb-24">
 
-      {/* Ubah Template — di dalam scroll area, tidak di topbar */}
-      <div className="flex justify-end">
+      {/* Ubah Template — floating button di bawah */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
         <button
           onClick={onChangeTemplate}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border border-stone-200 text-stone-500 hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium bg-white border border-stone-200 text-stone-600 shadow-lg hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50 transition-colors"
         >
-          <LayoutTemplate size={13} />
+          <LayoutTemplate size={14} />
           Ubah Template
         </button>
       </div>

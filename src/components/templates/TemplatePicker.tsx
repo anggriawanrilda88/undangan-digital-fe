@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Check } from "lucide-react"
+import { Check, Eye } from "lucide-react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 
@@ -88,6 +88,18 @@ export default function TemplatePicker({ selectedId, onSelect, onPreview }: Temp
               <div className="absolute inset-0 z-0 flex items-center justify-center bg-gradient-to-br from-amber-50 to-stone-200">
                 <span className="text-4xl opacity-30">💍</span>
               </div>
+
+              {/* Preview button — pojok kanan atas */}
+              <button
+                onClick={e => {
+                  e.stopPropagation()
+                  window.open(`/preview/${template.id}`, "_blank")
+                }}
+                className="absolute top-2 right-2 z-20 flex items-center justify-center w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-sm border border-stone-200 text-stone-600 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 transition-colors"
+                title={`Preview ${template.name}`}
+              >
+                <Eye size={14} />
+              </button>
 
               {/* Premium badge */}
               {template.isPremium && (
