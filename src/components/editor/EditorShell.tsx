@@ -2,11 +2,10 @@
 
 import { useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Eye, EyeOff, Save, Check, Copy, Loader2, AlertCircle, ChevronLeft, Rocket, CheckCircle2, LayoutTemplate } from "lucide-react"
-import Link from "next/link"
+import { Eye, EyeOff, Save, Check, Copy, Loader2, AlertCircle, Rocket, CheckCircle2, LayoutTemplate } from "lucide-react"
+import { cn } from "@/lib/utils"
 import type { TemplateProps } from "@/types/template"
 import type { InvitationStatus } from "@/types/api"
-import { cn } from "@/lib/utils"
 import ImageUpload from "@/components/ui/ImageUpload"
 
 interface EditorShellProps {
@@ -96,25 +95,24 @@ export default function EditorShell({
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col">
       {/* === TOPBAR === */}
-      <header className="sticky top-0 z-50 bg-white border-b border-stone-200 px-4 h-14 flex items-center justify-between gap-4 shadow-sm">
-        {/* FE-BUG-006: Back navigation */}
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-800 transition-colors shrink-0"
-        >
-          <ChevronLeft size={14} />
-          Dashboard
-        </Link>
-        {/* FE-S02-8: Ubah Template button */}
+      <header className="sticky top-0 z-50 bg-white border-b border-stone-200 px-4 h-14 flex items-center justify-between gap-3 shadow-sm">
+        {/* Kiri: Ubah Template */}
         <button
           onClick={() => setShowChangeTemplateConfirm(true)}
-          className="flex items-center gap-1 text-xs text-stone-400 hover:text-stone-700 transition-colors shrink-0"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-stone-200 text-stone-600 hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50 transition-colors shrink-0"
         >
           <LayoutTemplate size={13} />
           Ubah Template
         </button>
-        <div className="flex items-center gap-2">
-          <SaveIndicator status={saveStatus} isPublished={isPublished} />
+
+        {/* Kanan: action buttons + save indicator */}
+        <div className="flex items-center gap-2 ml-auto">
+          {/* SaveIndicator — absolute agar tidak geser layout */}
+          <div className="relative h-6 w-36 hidden sm:block">
+            <div className="absolute right-0 top-1/2 -translate-y-1/2">
+              <SaveIndicator status={saveStatus} isPublished={isPublished} />
+            </div>
+          </div>
           <button
             onClick={handleSave}
             disabled={saveStatus === "saving"}
@@ -123,7 +121,6 @@ export default function EditorShell({
             <Save size={13} />
             Simpan
           </button>
-          {/* Toggle Preview — prominent, fixed di topbar (sesuai keputusan Prita: toggle mode) */}
           <button
             onClick={() => setIsPreviewMode(p => !p)}
             className={cn(
@@ -135,10 +132,10 @@ export default function EditorShell({
           >
             {isPreviewMode ? <><EyeOff size={13} /> Kembali Edit</> : <><Eye size={13} /> Preview</>}
           </button>
-          {/* FE-BUG-001: Tombol Publish/Unpublish */}
+          {/* Publish/Unpublish */}
           {isPublished ? (
             <div className="flex items-center gap-1.5">
-              <span className="flex items-center gap-1 text-xs font-medium text-green-700 bg-green-100 px-2.5 py-1.5 rounded-lg">
+              <span className="flex items-center gap-1 text-xs font-medium text-green-700 bg-green-100 px-2.5 py-1.5 rounded-lg whitespace-nowrap">
                 <CheckCircle2 size={12} />
                 Published
               </span>
