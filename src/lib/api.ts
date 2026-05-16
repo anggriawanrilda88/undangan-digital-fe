@@ -184,7 +184,8 @@ export const api = {
   //
   // Flow: FE → BE → MinIO (BE yang handle upload ke MinIO)
   // POST /upload/image (multipart/form-data, field: "file")
-  // Response: { success: true, data: { url: "https://minio.anggriawan.my.id/..." } }
+  // Response: { success: true, data: { url: "/undangan-uploads/..." } } (path relatif)
+  // FE normalize ke absolute URL via NEXT_PUBLIC_MINIO_ENDPOINT
   uploadImage: async (file: File): Promise<string> => {
     const formData = new FormData()
     formData.append("file", file)
@@ -213,6 +214,18 @@ export const api = {
       throw new ApiException(err?.code ?? "UPLOAD_FAILED", err?.message ?? `HTTP ${res.status}`)
     }
 
-    return (parsed as ApiSuccess<{ url: string }>).data.url
+    return normalizeUploadUrl((parsed as ApiSuccess<{ url: string }>).data.url)
   },
+}
+
+/**
+ * Normalize URL upload dari BE — BE kadang return path relatif ("/undangan-uploads/xxx.jpg")
+ * bukan absolute URL. FE butuh absolute URL untuk next/image.
+ */
+function normalizeUploadUrl(url: string): string {
+  if (!url) return url
+  if (url.startsWith("http://") || url.startsWith("https://")) return url
+  // Path relatif — prepend MinIO public endpoint
+  const base = process.env.NEXT_PUBLIC_MINIO_ENDPOINT ?? "https://minio.anggriawan.my.id"
+  return `${base.replace(/\/$/, "")}${url.startsWith("/") ? "" : "/"}${url}`
 }
