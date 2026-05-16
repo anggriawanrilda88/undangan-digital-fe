@@ -3,8 +3,10 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { api } from "@/lib/api"
 import { invitationToTemplateProps, templatePropsToUpdateRequest } from "@/types/adapters"
+import { resolveTemplateComponent, resolveTemplateName, FALLBACK_COMPONENT } from "@/lib/templateRegistry"
 import type { TemplateProps } from "@/types/template"
 import type { InvitationStatus } from "@/types/api"
+import type { ComponentType } from "react"
 
 type SaveStatus = "idle" | "saving" | "saved" | "error"
 type PublishStatus = "idle" | "publishing" | "done" | "error"
@@ -16,6 +18,8 @@ interface UseInvitationEditorReturn {
   publishStatus: PublishStatus
   invitationStatus: InvitationStatus
   error: string | null
+  templateComponent: ComponentType<TemplateProps>
+  templateName: string
   updateData: (updater: (prev: TemplateProps) => TemplateProps) => void
   save: () => Promise<void>
   publish: () => Promise<void>
@@ -29,6 +33,10 @@ export function useInvitationEditor(invitationId: string): UseInvitationEditorRe
   const [publishStatus, setPublishStatus] = useState<PublishStatus>("idle")
   const [invitationStatus, setInvitationStatus] = useState<InvitationStatus>("draft")
   const [error, setError] = useState<string | null>(null)
+  const [templateComponent, setTemplateComponent] = useState<ComponentType<TemplateProps>>(
+    () => FALLBACK_COMPONENT
+  )
+  const [templateName, setTemplateName] = useState("")
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const latestData = useRef<TemplateProps | null>(null)
 
@@ -39,12 +47,22 @@ export function useInvitationEditor(invitationId: string): UseInvitationEditorRe
     setError(null)
 
     api.getInvitation(invitationId)
-      .then(inv => {
+      .then(async inv => {
         if (cancelled) return
         const props = invitationToTemplateProps(inv)
         setData(props)
         latestData.current = props
         setInvitationStatus(inv.status)
+
+        // Resolve template component + name async (cache hit = instant)
+        const [comp, name] = await Promise.all([
+          resolveTemplateComponent(inv.config.templateId),
+          resolveTemplateName(inv.config.templateId),
+        ])
+        if (!cancelled) {
+          setTemplateComponent(() => comp)
+          setTemplateName(name)
+        }
       })
       .catch(err => {
         if (cancelled) return
@@ -129,5 +147,5 @@ export function useInvitationEditor(invitationId: string): UseInvitationEditorRe
     }
   }, [])
 
-  return { data, loading, saveStatus, publishStatus, invitationStatus, error, updateData, save, publish, unpublish }
+  return { data, loading, saveStatus, publishStatus, invitationStatus, error, templateComponent, templateName, updateData, save, publish, unpublish }
 }

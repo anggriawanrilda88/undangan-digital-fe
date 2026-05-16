@@ -18,6 +18,7 @@ import type {
   RsvpRequest,
   Rsvp,
   RsvpListResponse,
+  Template,
   ApiSuccess,
   ApiError,
 } from "@/types/api"
@@ -83,6 +84,13 @@ async function apiFetch<T>(
 // ─── API Methods ─────────────────────────────────────────
 
 export const api = {
+
+  // ── Templates (public, no auth) ──
+  listTemplates: () =>
+    apiFetch<Template[]>("/templates", { authenticated: false }),
+
+  getTemplate: (id: string) =>
+    apiFetch<Template>(`/templates/${id}`, { authenticated: false }),
 
   // ── Auth ──
   login: (email: string, password: string) =>

@@ -7,16 +7,7 @@ import type { TemplateProps } from "@/types/template"
 import type { RsvpRequest } from "@/types/api"
 import { api } from "@/lib/api"
 import { shareUrl, whatsappShareText } from "@/lib/utils"
-import TemplateElegantGarden from "@/components/templates/TemplateElegantGarden"
-import TemplateModernSerif from "@/components/templates/TemplateModernSerif"
-import TemplateRoyalBatik from "@/components/templates/TemplateRoyalBatik"
-
-// Template registry (sama dengan editor)
-const TEMPLATE_MAP: Record<string, React.ComponentType<TemplateProps>> = {
-  "elegant-garden": TemplateElegantGarden,
-  "modern-serif": TemplateModernSerif,
-  "royal-batik": TemplateRoyalBatik,
-}
+import { resolveTemplateComponentSync, FALLBACK_COMPONENT } from "@/lib/templateRegistry"
 
 interface PublicInvitationPageProps {
   templateProps: TemplateProps
@@ -25,7 +16,7 @@ interface PublicInvitationPageProps {
 export default function PublicInvitationPage({ templateProps }: PublicInvitationPageProps) {
   const [showShareSheet, setShowShareSheet] = useState(false)
 
-  const TemplateComponent = TEMPLATE_MAP[templateProps.meta.templateId] ?? TemplateElegantGarden
+  const TemplateComponent = resolveTemplateComponentSync(templateProps.meta.templateId) ?? FALLBACK_COMPONENT
 
   // Override RSVP handler di template — inject actual API call
   const templatePropsWithRsvp: TemplateProps & { onRsvpSubmit?: (payload: RsvpRequest) => Promise<void> } = {

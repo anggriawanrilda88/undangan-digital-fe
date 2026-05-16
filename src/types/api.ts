@@ -178,6 +178,18 @@ export interface RsvpListResponse {
   }
 }
 
+// ─── Template ─────────────────────────────────────────────
+
+export interface Template {
+  id: string             // UUID — gunakan ini sebagai templateId di config
+  name: string           // Display name, e.g. "Elegant Classic"
+  slug: string           // Slug untuk map ke komponen FE, e.g. "elegant-classic"
+  category: string       // "klasik" | "rustic" | "modern" | "tradisional" | "romantis"
+  sortOrder: number
+  thumbnailUrl?: string | null
+  createdAt: string
+}
+
 // ─── Upload ─────────────────────────────────────────────
 
 export type UploadCategory = "couple_photo" | "qris"

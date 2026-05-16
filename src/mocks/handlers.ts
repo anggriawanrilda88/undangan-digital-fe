@@ -4,7 +4,7 @@
  */
 
 import { http, HttpResponse, delay } from "msw"
-import type { Invitation, InvitationSummary, PublicInvitation, Rsvp, RsvpListResponse } from "@/types/api"
+import type { Invitation, InvitationSummary, PublicInvitation, Rsvp, RsvpListResponse, Template } from "@/types/api"
 
 const BASE = "/api/v1"
 
@@ -67,9 +67,37 @@ const mockRsvps: Rsvp[] = [
 
 const takenSlugs = ["reza-anisa-2025", "budi-sari", "ahmad-rina"]
 
+const mockTemplates: Template[] = [
+  { id: "79b29c8a-0000-0000-0000-000000000001", name: "Elegant Classic",    slug: "elegant-classic",    category: "klasik",      sortOrder: 1, thumbnailUrl: null, createdAt: "2025-01-01T00:00:00Z" },
+  { id: "c8653e45-0000-0000-0000-000000000002", name: "Rustic Garden",      slug: "rustic-garden",      category: "rustic",      sortOrder: 2, thumbnailUrl: null, createdAt: "2025-01-01T00:00:00Z" },
+  { id: "e06c6502-0000-0000-0000-000000000003", name: "Modern Minimalist",  slug: "modern-minimalist",  category: "modern",      sortOrder: 3, thumbnailUrl: null, createdAt: "2025-01-01T00:00:00Z" },
+  { id: "b46af254-0000-0000-0000-000000000004", name: "Javanese Gold",      slug: "javanese-gold",      category: "tradisional", sortOrder: 4, thumbnailUrl: null, createdAt: "2025-01-01T00:00:00Z" },
+  { id: "63fd2bc6-0000-0000-0000-000000000005", name: "Floral Romantic",    slug: "floral-romantic",    category: "romantis",    sortOrder: 5, thumbnailUrl: null, createdAt: "2025-01-01T00:00:00Z" },
+]
+
+
+
 // ─── Handlers ────────────────────────────────────────────
 
 export const handlers = [
+
+  // ── TEMPLATES (public) ──
+  http.get(`${BASE}/templates`, async () => {
+    await delay(100)
+    return HttpResponse.json({ success: true, data: mockTemplates })
+  }),
+
+  http.get(`${BASE}/templates/:id`, async ({ params }) => {
+    await delay(100)
+    const tpl = mockTemplates.find(t => t.id === params.id)
+    if (!tpl) {
+      return HttpResponse.json(
+        { success: false, error: { code: "NOT_FOUND", message: "Template tidak ditemukan" } },
+        { status: 404 }
+      )
+    }
+    return HttpResponse.json({ success: true, data: tpl })
+  }),
 
   // ── AUTH ──
   http.post(`${BASE}/auth/login`, async ({ request }) => {
@@ -83,7 +111,7 @@ export const handlers = [
     }
     return HttpResponse.json({
       success: true,
-      data: { token: "mock-jwt-token-12345", user: { ...mockUser, email: body.email } },
+      data: { accessToken: "mock-jwt-token-12345", user: { ...mockUser, email: body.email } },
     })
   }),
 
@@ -93,7 +121,7 @@ export const handlers = [
     return HttpResponse.json({
       success: true,
       data: {
-        token: "mock-jwt-token-new-user",
+        accessToken: "mock-jwt-token-new-user",
         user: { id: `user-${Date.now()}`, email: body.email, name: body.name, createdAt: new Date().toISOString() },
       },
     }, { status: 201 })
@@ -102,6 +130,26 @@ export const handlers = [
   http.get(`${BASE}/auth/me`, async () => {
     await delay(150)
     return HttpResponse.json({ success: true, data: mockUser })
+  }),
+
+  http.post(`${BASE}/auth/verify-email`, async () => {
+    await delay(200)
+    return HttpResponse.json({ success: true, data: { accessToken: "mock-jwt-verified-token" } })
+  }),
+
+  http.post(`${BASE}/auth/resend-otp`, async () => {
+    await delay(200)
+    return HttpResponse.json({ success: true, data: null })
+  }),
+
+  http.post(`${BASE}/auth/forgot-password`, async () => {
+    await delay(200)
+    return HttpResponse.json({ success: true, data: null })
+  }),
+
+  http.post(`${BASE}/auth/reset-password`, async () => {
+    await delay(200)
+    return HttpResponse.json({ success: true, data: null })
   }),
 
   // ── INVITATIONS ──
