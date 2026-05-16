@@ -111,7 +111,7 @@ export const handlers = [
     }
     return HttpResponse.json({
       success: true,
-      data: { accessToken: "mock-jwt-token-12345", user: { ...mockUser, email: body.email } },
+      data: { token: "mock-jwt-token-12345", user: { ...mockUser, email: body.email } },
     })
   }),
 
@@ -121,7 +121,7 @@ export const handlers = [
     return HttpResponse.json({
       success: true,
       data: {
-        accessToken: "mock-jwt-token-new-user",
+        token: "mock-jwt-token-new-user",
         user: { id: `user-${Date.now()}`, email: body.email, name: body.name, createdAt: new Date().toISOString() },
       },
     }, { status: 201 })
@@ -134,7 +134,7 @@ export const handlers = [
 
   http.post(`${BASE}/auth/verify-email`, async () => {
     await delay(200)
-    return HttpResponse.json({ success: true, data: { accessToken: "mock-jwt-verified-token" } })
+    return HttpResponse.json({ success: true, data: { token: "mock-jwt-verified-token" } })
   }),
 
   http.post(`${BASE}/auth/resend-otp`, async () => {

@@ -136,7 +136,7 @@ function OtpStep({
     setLoading(true)
     try {
       const result = await api.verifyEmail(email, code)
-      setAuthToken(result.accessToken)
+      setAuthToken(result.token)
       onVerified()
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Kode tidak valid"
@@ -311,8 +311,8 @@ export default function AuthForm() {
         setRegisteredEmail(email)
         setStep("otp")
       } else {
-        const { accessToken } = await api.login(email, password)
-        setAuthToken(accessToken)
+        const { token } = await api.login(email, password)
+        setAuthToken(token)
         await smartRedirect()
       }
     } catch (err: unknown) {

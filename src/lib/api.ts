@@ -94,14 +94,14 @@ export const api = {
 
   // ── Auth ──
   login: (email: string, password: string) =>
-    apiFetch<{ accessToken: string; user: UserProfile }>("/auth/login", {
+    apiFetch<{ token: string; user: UserProfile }>("/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
       authenticated: false,
     }),
 
   register: (email: string, password: string, name: string) =>
-    apiFetch<{ accessToken: string; user: UserProfile }>("/auth/register", {
+    apiFetch<{ token: string; user: UserProfile }>("/auth/register", {
       method: "POST",
       body: JSON.stringify({ email, password, name }),
       authenticated: false,
@@ -128,7 +128,7 @@ export const api = {
 
   // ── OTP & Password Recovery ──
   verifyEmail: (email: string, otp: string) =>
-    apiFetch<{ accessToken: string }>("/auth/verify-email", {
+    apiFetch<{ token: string }>("/auth/verify-email", {
       method: "POST",
       body: JSON.stringify({ email, otp }),
       authenticated: false,
