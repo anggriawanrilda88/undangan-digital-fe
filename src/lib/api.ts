@@ -70,6 +70,10 @@ async function apiFetch<T>(
       throw new ApiException("UNAUTHORIZED", "Sesi kamu sudah habis. Silakan masuk kembali.")
     }
     const err = (parsed as ApiError).error
+    // 403 EMAIL_NOT_VERIFIED — lempar dengan code agar caller bisa detect
+    if (res.status === 403 && err?.code === "EMAIL_NOT_VERIFIED") {
+      throw new ApiException("EMAIL_NOT_VERIFIED", err?.message ?? "Email belum diverifikasi.")
+    }
     throw new ApiException(err?.code ?? "UNKNOWN", err?.message ?? `HTTP ${res.status}`)
   }
 
@@ -82,14 +86,14 @@ export const api = {
 
   // ── Auth ──
   login: (email: string, password: string) =>
-    apiFetch<{ token: string; user: UserProfile }>("/auth/login", {
+    apiFetch<{ accessToken: string; user: UserProfile }>("/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
       authenticated: false,
     }),
 
   register: (email: string, password: string, name: string) =>
-    apiFetch<{ token: string; user: UserProfile }>("/auth/register", {
+    apiFetch<{ accessToken: string; user: UserProfile }>("/auth/register", {
       method: "POST",
       body: JSON.stringify({ email, password, name }),
       authenticated: false,
@@ -116,7 +120,7 @@ export const api = {
 
   // ── OTP & Password Recovery ──
   verifyEmail: (email: string, otp: string) =>
-    apiFetch<{ token: string }>("/auth/verify-email", {
+    apiFetch<{ accessToken: string }>("/auth/verify-email", {
       method: "POST",
       body: JSON.stringify({ email, otp }),
       authenticated: false,

@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Mail, Eye, EyeOff, Loader2, Check, X, ArrowLeft, RefreshCw } from "lucide-react"
-import { api } from "@/lib/api"
+import { api, ApiException } from "@/lib/api"
 import { setAuthToken } from "@/lib/auth"
 import { cn } from "@/lib/utils"
 
@@ -136,7 +136,7 @@ function OtpStep({
     setLoading(true)
     try {
       const result = await api.verifyEmail(email, code)
-      setAuthToken(result.token)
+      setAuthToken(result.accessToken)
       onVerified()
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Kode tidak valid"
@@ -311,18 +311,21 @@ export default function AuthForm() {
         setRegisteredEmail(email)
         setStep("otp")
       } else {
-        const { token } = await api.login(email, password)
-        setAuthToken(token)
+        const { accessToken } = await api.login(email, password)
+        setAuthToken(accessToken)
         await smartRedirect()
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Terjadi kesalahan"
-      if (msg.toLowerCase().includes("not verified") || msg.toLowerCase().includes("email verification")) {
-        setRegisteredEmail(email)
-        setStep("otp")
-        return
+      if (err instanceof ApiException) {
+        // 403 EMAIL_NOT_VERIFIED — redirect ke halaman verify-email
+        if (err.code === "EMAIL_NOT_VERIFIED") {
+          window.location.href = `/auth/verify-email?email=${encodeURIComponent(email)}`
+          return
+        }
+        setError(translateAuthError(err.message))
+      } else {
+        setError("Terjadi kesalahan. Coba lagi.")
       }
-      setError(translateAuthError(msg))
     } finally {
       setLoading(false)
     }
