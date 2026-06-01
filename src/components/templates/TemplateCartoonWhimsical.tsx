@@ -9,11 +9,13 @@ import { formatDateID, formatTime } from "@/lib/utils"
 
 // ─── GSAP plugin registration (safe within React) ───
 let _gsapPluginsRegistered = false
-function ensureGsapPlugins() {
+async function ensureGsapPlugins() {
   if (_gsapPluginsRegistered || typeof window === "undefined") return
   try {
-    const TextPlugin = require("gsap/TextPlugin")
-    const MotionPathPlugin = require("gsap/MotionPathPlugin")
+    const [TextPlugin, MotionPathPlugin] = await Promise.all([
+      import("gsap/TextPlugin").then(m => m.default ?? m.TextPlugin),
+      import("gsap/MotionPathPlugin").then(m => m.default ?? m.MotionPathPlugin),
+    ])
     gsap.registerPlugin(TextPlugin, MotionPathPlugin)
   } catch { /* plugins optional, template still works without them */ }
   _gsapPluginsRegistered = true
@@ -51,7 +53,7 @@ export default function TemplateCartoonWhimsical(props: TemplateProps) {
     story, proposal, opening, gallery,
   } = props
 
-  ensureGsapPlugins()
+  void ensureGsapPlugins()
 
   const [currentSlide, setCurrentSlide] = useState<SlideIndex>(0)
   const [isTransitioning, setIsTransitioning] = useState(false)

@@ -4,6 +4,11 @@ const nextConfig: NextConfig = {
   // Required for Docker deployment (standalone output)
   output: "standalone",
 
+  // Force include GSAP in standalone output (dynamic imports not auto-traced)
+  outputFileTracingIncludes: {
+    "/**": ["node_modules/gsap/**/*"],
+  },
+
   // Allow external images (MinIO + future CDN)
   images: {
     remotePatterns: [
