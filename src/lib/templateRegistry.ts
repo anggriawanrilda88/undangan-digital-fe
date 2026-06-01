@@ -22,6 +22,7 @@ import { api } from "@/lib/api"
 import TemplateElegantGarden from "@/components/templates/TemplateElegantGarden"
 import TemplateModernSerif from "@/components/templates/TemplateModernSerif"
 import TemplateRoyalBatik from "@/components/templates/TemplateRoyalBatik"
+import TemplateCartoonWhimsical from "@/components/templates/TemplateCartoonWhimsical"
 
 // ─── Komponen Map (slug → component) ─────────────────────
 // Tambahkan entry baru di sini saat ada template baru.
@@ -31,6 +32,7 @@ export const COMPONENT_MAP: Record<string, ComponentType<TemplateProps>> = {
   "elegant-classic":    TemplateElegantGarden,   // BE: "Elegant Classic"
   "modern-minimalist":  TemplateModernSerif,      // BE: "Modern Minimalist"
   "javanese-gold":      TemplateRoyalBatik,       // BE: "Javanese Gold"
+  "cartoon-whimsical":   TemplateCartoonWhimsical,  // BE: "Cartoon Whimsical"
   // Slug legacy (data lama di DB / dev yang belum migrasi)
   "elegant-garden":     TemplateElegantGarden,
   "modern-serif":       TemplateModernSerif,
@@ -122,6 +124,7 @@ export async function resolveTemplateName(templateId: string): Promise<string> {
     "elegant-classic": "Elegant Classic",
     "modern-minimalist": "Modern Minimalist",
     "javanese-gold": "Javanese Gold",
+    "cartoon-whimsical": "Cartoon Whimsical",
     "elegant-garden": "Elegant Garden",
     "modern-serif": "Modern Serif",
     "royal-batik": "Royal Batik",
@@ -156,6 +159,7 @@ export function resolveTemplateNameSync(templateId: string): string {
     "elegant-classic": "Elegant Classic",
     "modern-minimalist": "Modern Minimalist",
     "javanese-gold": "Javanese Gold",
+    "cartoon-whimsical": "Cartoon Whimsical",
     "elegant-garden": "Elegant Garden",
     "modern-serif": "Modern Serif",
     "royal-batik": "Royal Batik",
